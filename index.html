@@ -1,1 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>linkdevil_</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020408;
+    --surface: #080d14;
+    --surface2: #0d1520;
+    --border: #0e2040;
+    --border-bright: #1a3a6e;
+    --blue: #1a6fff;
+    --blue-dim: #0d3a8a;
+    --blue-glow: rgba(26,111,255,0.15);
+    --blue-glow2: rgba(26,111,255,0.06);
+    --text: #c8dcf8;
+    --text-dim: #4a6890;
+    --text-muted: #1e3a5a;
+    --white: #e8f2ff;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .grid-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  .grid-bg::before {
+    content: ''; position: absolute; inset: -50%;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: gridDrift 20s linear infinite; opacity: 0.6;
+  }
+  .grid-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 30%, rgba(10,30,70,0.7) 0%, var(--bg) 70%);
+  }
+  @keyframes gridDrift { 0%{transform:translate(0,0)} 100%{transform:translate(48px,48px)} }
+
+  .orb {
+    position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+    filter: blur(80px); opacity: 0.18;
+    animation: orbPulse 6s ease-in-out infinite alternate;
+  }
+  .orb1 { width:400px;height:400px;background:#0a40c0;top:-100px;left:-100px;animation-delay:0s; }
+  .orb2 { width:300px;height:300px;background:#0060ff;bottom:100px;right:-80px;animation-delay:2s; }
+  .orb3 { width:200px;height:200px;background:#003090;top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:4s; }
+  @keyframes orbPulse { from{opacity:0.12;transform:scale(1)} to{opacity:0.22;transform:scale(1.1)} }
+
+  .wrap { position:relative;z-index:1;max-width:640px;margin:0 auto;padding:60px 20px 80px; }
+
+  .header { text-align:center;margin-bottom:48px;animation:fadeDown 0.6s ease both; }
+  .header-badge {
+    display:inline-block;font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:0.15em;color:var(--blue);background:var(--blue-glow2);
+    border:1px solid var(--blue-dim);border-radius:20px;padding:4px 14px;
+    margin-bottom:16px;text-transform:uppercase;
+  }
+  .header h1 {
+    font-size:clamp(36px,8vw,64px);font-weight:700;color:var(--white);
+    letter-spacing:-0.02em;line-height:1;margin-bottom:12px;
+  }
+  .header h1 .underscore { animation:blink 1s step-start infinite;color:var(--blue); }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .header p { font-size:14px;color:var(--text-dim);letter-spacing:0.02em; }
+  .header-github {
+    display:inline-flex;align-items:center;gap:6px;margin-top:14px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dim);
+    text-decoration:none;border:1px solid var(--border);border-radius:20px;
+    padding:5px 14px;transition:all 0.2s;
+  }
+  .header-github:hover { border-color:var(--blue-dim);color:var(--blue);background:var(--blue-glow2); }
+  .header-github svg { width:13px;height:13px;fill:currentColor; }
+
+  .links { display:flex;flex-direction:column;gap:10px; }
+
+  .link-item {
+    display:flex;align-items:center;gap:12px;background:var(--surface);
+    border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;
+    transition:border-color 0.25s,background 0.25s,transform 0.2s,box-shadow 0.25s;
+    animation:fadeUp 0.5s ease both;position:relative;overflow:hidden;
+  }
+  .link-item::before {
+    content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:var(--blue-dim);border-radius:3px 0 0 3px;
+    transition:background 0.2s,box-shadow 0.2s;
+  }
+  .link-item:hover {
+    border-color:var(--border-bright);background:var(--surface2);transform:translateX(3px);
+    box-shadow:0 0 20px var(--blue-glow2),-4px 0 0 0 var(--blue);
+  }
+  .link-item:hover::before { background:var(--blue);box-shadow:0 0 8px var(--blue); }
+  .link-item:nth-child(1){animation-delay:0.05s}.link-item:nth-child(2){animation-delay:0.10s}
+  .link-item:nth-child(3){animation-delay:0.15s}.link-item:nth-child(4){animation-delay:0.20s}
+  .link-item:nth-child(5){animation-delay:0.25s}.link-item:nth-child(6){animation-delay:0.30s}
+  .link-item:nth-child(7){animation-delay:0.35s}.link-item:nth-child(8){animation-delay:0.40s}
+  .link-item:nth-child(9){animation-delay:0.45s}.link-item:nth-child(10){animation-delay:0.50s}
+
+  .link-dot { width:7px;height:7px;border-radius:50%;background:var(--blue-dim);flex-shrink:0;transition:background 0.2s,box-shadow 0.2s; }
+  .link-item:hover .link-dot { background:var(--blue);box-shadow:0 0 6px var(--blue); }
+
+  .link-anchor { flex:1;font-size:15px;font-weight:500;color:var(--text);text-decoration:none;letter-spacing:0.01em;transition:color 0.2s; }
+  .link-anchor:hover { color:var(--white); }
+
+  .check-btn {
+    flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);
+    background:transparent;border:1px solid var(--border);border-radius:var(--radius-sm);
+    padding:5px 10px;cursor:pointer;transition:all 0.2s;white-space:nowrap;
+  }
+  .check-btn:hover    { border-color:var(--blue-dim);color:var(--blue);background:var(--blue-glow2); }
+  .check-btn.checking { color:var(--blue);border-color:var(--blue-dim);animation:pulse 0.8s ease infinite alternate; }
+  .check-btn.ok       { color:#22c55e;border-color:#14532d;background:rgba(34,197,94,0.06); }
+  .check-btn.blocked  { color:#f87171;border-color:#7f1d1d;background:rgba(248,113,113,0.06); }
+  .check-btn.unknown  { color:#fde047;border-color:#713f12;background:rgba(250,204,21,0.06); }
+  @keyframes pulse { from{opacity:0.5} to{opacity:1} }
+
+  .footer { margin-top:48px;display:flex;flex-direction:column;align-items:center;gap:16px;animation:fadeUp 0.5s 0.6s ease both; }
+  .report-btn {
+    display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;
+    font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);
+    background:transparent;border:1px solid var(--border);border-radius:20px;
+    padding:8px 20px;cursor:pointer;text-decoration:none;transition:all 0.2s;
+  }
+  .report-btn:hover { border-color:#7f1d1d;color:#f87171;background:rgba(248,113,113,0.05); }
+  .footer-note { font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-muted);letter-spacing:0.08em; }
+
+  /* MODAL */
+  .modal-overlay {
+    position:fixed;inset:0;z-index:100;background:rgba(2,4,8,0.88);
+    backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity 0.2s;
+  }
+  .modal-overlay.open { opacity:1;pointer-events:all; }
+  .modal {
+    background:var(--surface);border:1px solid var(--border-bright);border-radius:18px;
+    padding:28px 28px 24px;max-width:420px;width:90%;
+    box-shadow:0 0 60px rgba(26,111,255,0.12);
+    transform:translateY(16px) scale(0.97);transition:transform 0.25s ease,opacity 0.2s;opacity:0;
+  }
+  .modal-overlay.open .modal { transform:translateY(0) scale(1);opacity:1; }
+  .modal h3 { font-size:16px;font-weight:600;color:var(--white);margin-bottom:6px; }
+  .modal p  { font-size:12px;color:var(--text-dim);line-height:1.7;margin-bottom:14px; }
+  .modal-url {
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);
+    background:var(--blue-glow2);border:1px solid var(--blue-dim);border-radius:8px;
+    padding:8px 12px;margin-bottom:16px;word-break:break-all;
+  }
+
+  /* PROGRESS */
+  .progress-track { height:2px;background:var(--border);border-radius:2px;margin-bottom:20px;overflow:hidden; }
+  .progress-bar   { height:100%;width:0%;background:var(--blue);border-radius:2px;transition:width 0.4s ease; }
+
+  /* PHASES */
+  .phases { display:flex;flex-direction:column;gap:8px;margin-bottom:18px; }
+  .phase {
+    display:flex;align-items:center;gap:10px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--text-muted);transition:color 0.25s;
+  }
+  .phase.active  { color:var(--blue); }
+  .phase.done    { color:#4ade80; }
+  .phase.flagged { color:#f87171; }
+  .phase-icon {
+    width:18px;height:18px;border-radius:50%;border:1px solid currentColor;
+    display:flex;align-items:center;justify-content:center;
+    font-size:9px;flex-shrink:0;transition:all 0.25s;
+  }
+  .phase.active .phase-icon { animation:pulse 0.7s ease infinite alternate; }
+  .phase.done   .phase-icon { background:rgba(34,197,94,0.12); }
+  .phase.flagged .phase-icon { background:rgba(248,113,113,0.12); }
+  .phase-text { flex:1; }
+  .phase-sub  { font-size:10px;opacity:0.55;margin-left:2px; }
+
+  /* VERDICT */
+  .verdict-box {
+    border-radius:12px;padding:14px 16px;margin-bottom:18px;display:none;
+    animation:fadeUp 0.3s ease both;
+  }
+  .verdict-box.show    { display:block; }
+  .verdict-box.ok      { background:rgba(34,197,94,0.07); border:1px solid #14532d; }
+  .verdict-box.blocked { background:rgba(248,113,113,0.07);border:1px solid #7f1d1d; }
+  .verdict-box.unknown { background:rgba(250,204,21,0.07); border:1px solid #713f12; }
+
+  .verdict-title { font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;margin-bottom:4px; }
+  .verdict-box.ok      .verdict-title { color:#4ade80; }
+  .verdict-box.blocked .verdict-title { color:#f87171; }
+  .verdict-box.unknown .verdict-title { color:#fde047; }
+
+  .verdict-detail { font-size:12px;line-height:1.65; }
+  .verdict-box.ok      .verdict-detail { color:#86efac; }
+  .verdict-box.blocked .verdict-detail { color:#fca5a5; }
+  .verdict-box.unknown .verdict-detail { color:#fef08a; }
+
+  .filter-badge {
+    display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.08em;
+    text-transform:uppercase;background:rgba(248,113,113,0.1);
+    border:1px solid #7f1d1d;border-radius:20px;padding:3px 10px;color:#fca5a5;
+  }
+  .filter-badge-dot { width:5px;height:5px;border-radius:50%;background:#f87171;flex-shrink:0; }
+
+  .modal-close {
+    width:100%;font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);
+    background:transparent;border:1px solid var(--border);border-radius:10px;
+    padding:10px;cursor:pointer;transition:all 0.2s;
+  }
+  .modal-close:hover { border-color:var(--blue-dim);color:var(--blue); }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<!-- HIDDEN PROBE IFRAME -->
+<iframe id="probe-frame"
+  style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;top:-9999px;left:-9999px;"
+  sandbox="allow-scripts allow-same-origin"
+  referrerpolicy="no-referrer">
+</iframe>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Checking for school filter</h3>
+    <p>Loading the URL in a sandbox and checking if a content filter intercepts it.</p>
+    <div class="modal-url" id="modal-url"></div>
+
+    <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
+
+    <div class="phases">
+      <div class="phase" id="phase-load">
+        <div class="phase-icon" id="icon-load">1</div>
+        <span class="phase-text">Loading URL in sandbox <span class="phase-sub">iframe probe</span></span>
+      </div>
+      <div class="phase" id="phase-redirect">
+        <div class="phase-icon" id="icon-redirect">2</div>
+        <span class="phase-text">Checking for redirect <span class="phase-sub">filter redirect detection</span></span>
+      </div>
+      <div class="phase" id="phase-sig">
+        <div class="phase-icon" id="icon-sig">3</div>
+        <span class="phase-text">Matching filter signatures <span class="phase-sub">Securly, GoGuardian, Lightspeed…</span></span>
+      </div>
+      <div class="phase" id="phase-timing">
+        <div class="phase-icon" id="icon-timing">4</div>
+        <span class="phase-text">Analysing load timing <span class="phase-sub">block pages load abnormally fast</span></span>
+      </div>
+    </div>
+
+    <div class="verdict-box" id="verdict-box">
+      <div class="verdict-title"  id="verdict-title"></div>
+      <div class="verdict-detail" id="verdict-detail"></div>
+      <div class="filter-badge"   id="filter-badge" style="display:none">
+        <div class="filter-badge-dot"></div>
+        <span id="filter-name"></span>
+      </div>
+    </div>
+
+    <button class="modal-close" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="header">
+    <div class="header-badge">link page</div>
+    <h1>linkdevil<span class="underscore">_</span></h1>
+    <p>10 links. no noise.</p>
+    <a class="header-github" href="https://github.com/defrostee" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12"/></svg>
+      github.com/defrostee
+    </a>
+  </div>
+
+  <div class="links" id="links-list"></div>
+
+  <div class="footer">
+    <a class="report-btn" href="mailto:?subject=Issue Report - linkdevil_&body=Describe the issue here..." target="_blank">
+      ⚑ &nbsp;Report an Issue
+    </a>
+    <div class="footer-note">linkdevil_ // made by defrostee</div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────
+const LINKS = [
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+  { label: 'Lorem Ipsum', url: 'https://example.com' },
+];
+
+// ── KNOWN SCHOOL CONTENT FILTER SIGNATURES ───────────────────
+// Patterns matched against the iframe's final URL after load,
+// any postMessage data, and page title (if readable).
+const FILTER_SIGNATURES = [
+  { name: 'Securly',              patterns: ['block.securly.com','securly.com/block','securly.com'] },
+  { name: 'GoGuardian',           patterns: ['goguardian.com','gg.school','blocked.goguardian'] },
+  { name: 'Lightspeed Systems',   patterns: ['lightspeedsystems.com','blocked.lightspeedsystems','relay.school','lightspeed.com/block'] },
+  { name: 'Bark',                 patterns: ['bark.us/blocked','barkweb.com','joinbark.com'] },
+  { name: 'iBoss',                patterns: ['ibosscloud.com','iboss.com/block','web.iboss'] },
+  { name: 'Cisco Umbrella',       patterns: ['umbrella.cisco.com','opendns.com','block.opendns.com','umbrella.cisco'] },
+  { name: 'Fortinet FortiGuard',  patterns: ['fortiguard.com','fortigate','fortinet.com/block','forticloud.com'] },
+  { name: 'Smoothwall',           patterns: ['smoothwall.net','smoothwall.com'] },
+  { name: 'ContentKeeper',        patterns: ['contentkeeper.com','ck-block','contentkeeper.net'] },
+  { name: 'Zscaler',              patterns: ['zscaler.net','zscaler.com/block','zscaler.com/blocked','zscalertwo.net'] },
+  { name: 'Barracuda',            patterns: ['barracudanetworks.com','barracuda.com/block','cuda-networks.com'] },
+  { name: 'Sophos',               patterns: ['sophos.com/block','sophosxl.net','sophosxl.com'] },
+  { name: 'Deansgate / Impero',   patterns: ['imperosoftware.com','contentadviser.co.uk','dansguardian'] },
+  { name: 'Palo Alto',            patterns: ['paloaltonetworks.com/block','pan-url-filtering','urlfiltering.paloaltonetworks'] },
+  // Generic block page keywords as fallback
+  { name: 'Content Filter',       patterns: ['blockpage','block-page','blocked.html','accessdenied','access-denied','filteredweb','urlfilter','content-filter','urlcategory','denypage','policy-violation','categorized=','category=blocked'] },
+];
+
+// ── RENDER LINKS ──────────────────────────────────────────────
+const list = document.getElementById('links-list');
+LINKS.forEach((link) => {
+  const item = document.createElement('div');
+  item.className = 'link-item';
+  item.innerHTML = `
+    <div class="link-dot"></div>
+    <a class="link-anchor" href="${link.url}" target="_blank" rel="noopener">${link.label}</a>
+    <button class="check-btn" onclick="startCheck(this, '${link.url}')">Check</button>
+  `;
+  list.appendChild(item);
+});
+
+// ── HELPERS ───────────────────────────────────────────────────
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function safeOrigin(url) { try { return new URL(url).origin; } catch { return null; } }
+
+function matchFilter(str) {
+  if (!str) return null;
+  const lower = str.toLowerCase();
+  for (const f of FILTER_SIGNATURES) {
+    if (f.patterns.some(p => lower.includes(p.toLowerCase()))) return f.name;
+  }
+  return null;
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────
+function setProgress(pct) { document.getElementById('progress-bar').style.width = pct + '%'; }
+
+function setPhase(id, state, icon) {
+  document.getElementById('phase-' + id).className = 'phase ' + state;
+  document.getElementById('icon-' + id).textContent = icon;
+}
+
+function resetUI() {
+  setProgress(0);
+  [[1,'load'],[2,'redirect'],[3,'sig'],[4,'timing']].forEach(([n,id]) => setPhase(id, '', n));
+  const vb = document.getElementById('verdict-box');
+  vb.className = 'verdict-box';
+  document.getElementById('filter-badge').style.display = 'none';
+  document.getElementById('verdict-title').textContent  = '';
+  document.getElementById('verdict-detail').textContent = '';
+}
+
+// ── IFRAME PROBE ──────────────────────────────────────────────
+// How school filters work:
+//   When a student visits a blocked URL, the filter (running as a
+//   transparent SSL proxy or browser extension) intercepts the request
+//   and returns an HTTP redirect (302) to a block-page URL on the
+//   filter's own domain instead of the real site.
+//
+// What we detect:
+//   1. After iframe.onload fires, we try to read iframe.contentWindow.location.href.
+//      - Real cross-origin site → SecurityError (browser blocks it) = GOOD sign.
+//      - Filter redirected to its own domain and that domain is readable OR
+//        we can see the URL has changed to a filter domain = BAD sign.
+//   2. Elapsed load time: block pages are static HTML served locally/by proxy,
+//      typically loading in <400ms. Real sites usually take longer.
+//   3. postMessage: some filter extensions post a message to the parent.
+//   4. iframe.contentDocument.title: if same-origin (block page served on a
+//      filter domain), we may be able to read the page title.
+
+function runIframeProbe(url) {
+  return new Promise((resolve) => {
+    const frame = document.getElementById('probe-frame');
+    const startTime = performance.now();
+    let settled = false;
+    let msgData = null;
+
+    // Some filter extensions (Securly, GoGuardian) post messages to parent
+    function onMessage(e) {
+      const d = String(e.data || '').toLowerCase();
+      if (['blocked','securly','goguardian','lightspeed','iboss','umbrella',
+           'fortiguard','filtered','access denied','policy'].some(k => d.includes(k))) {
+        msgData = String(e.data);
+      }
+    }
+    window.addEventListener('message', onMessage);
+
+    const timeout = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      window.removeEventListener('message', onMessage);
+      resolve({ status: 'timeout', elapsed: null, finalUrl: null, pageTitle: null, msgData: null });
+    }, 12000);
+
+    frame.onload = () => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      window.removeEventListener('message', onMessage);
+
+      const elapsed = performance.now() - startTime;
+      let finalUrl = null;
+      let pageTitle = null;
+
+      try {
+        // This succeeds if the iframe ended up on a same-origin page (e.g. block page)
+        // or throws SecurityError for normal cross-origin pages
+        finalUrl  = frame.contentWindow.location.href;
+        pageTitle = frame.contentDocument && frame.contentDocument.title;
+      } catch (e) {
+        // SecurityError = page is cross-origin = normal real site behaviour
+        finalUrl  = null;
+        pageTitle = null;
+      }
+
+      resolve({ status: 'loaded', elapsed, finalUrl, pageTitle, msgData });
+    };
+
+    // Reset then navigate
+    frame.src = 'about:blank';
+    requestAnimationFrame(() => { frame.src = url; });
+  });
+}
+
+// ── MAIN CHECK FLOW ───────────────────────────────────────────
+async function startCheck(btn, url) {
+  openModal(url);
+  resetUI();
+  btn.className   = 'check-btn checking';
+  btn.textContent = '...';
+
+  // ── Phase 1: load
+  setPhase('load', 'active', '●');
+  setProgress(10);
+  const probe = await runIframeProbe(url);
+  setPhase('load', probe.status === 'timeout' ? 'flagged' : 'done', probe.status === 'timeout' ? '!' : '✓');
+  setProgress(35);
+
+  await delay(250);
+
+  // ── Phase 2: redirect check
+  setPhase('redirect', 'active', '●');
+  setProgress(50);
+  await delay(300);
+
+  let detectedFilter = null;
+  let redirectSuspicious = false;
+
+  if (probe.finalUrl && probe.finalUrl !== 'about:blank' && probe.finalUrl !== url) {
+    // iframe ended up somewhere different — check if it matches a filter
+    const m = matchFilter(probe.finalUrl);
+    if (m) { detectedFilter = m; }
+
+    // Even without a name match, different origin = suspicious redirect
+    const targetOrigin = safeOrigin(url);
+    const landedOrigin = safeOrigin(probe.finalUrl);
+    if (targetOrigin && landedOrigin && targetOrigin !== landedOrigin) {
+      redirectSuspicious = true;
+    }
+  }
+
+  setPhase('redirect', redirectSuspicious || detectedFilter ? 'flagged' : 'done',
+           redirectSuspicious || detectedFilter ? '!' : '✓');
+  setProgress(65);
+
+  await delay(250);
+
+  // ── Phase 3: signature matching
+  setPhase('sig', 'active', '●');
+  setProgress(78);
+  await delay(300);
+
+  // Try all available strings: final URL, page title, postMessage
+  if (!detectedFilter) detectedFilter = matchFilter(probe.finalUrl);
+  if (!detectedFilter) detectedFilter = matchFilter(probe.pageTitle);
+  if (!detectedFilter) detectedFilter = matchFilter(probe.msgData);
+
+  setPhase('sig', detectedFilter ? 'flagged' : 'done', detectedFilter ? '!' : '✓');
+  setProgress(88);
+
+  await delay(250);
+
+  // ── Phase 4: timing analysis
+  setPhase('timing', 'active', '●');
+  setProgress(95);
+  await delay(300);
+
+  // Block pages are served by local/proxy infrastructure — sub-400ms is a red flag.
+  // We also check: if finalUrl is readable (non-null), the page is same-origin with
+  // something, which means we ended up on a non-cross-origin page — also suspicious.
+  const BLOCK_TIMING_MS   = 450;
+  const timingFlagged     = probe.elapsed !== null && probe.elapsed < BLOCK_TIMING_MS;
+  const readablePage      = probe.finalUrl !== null && probe.finalUrl !== 'about:blank';
+  const timingSuspicious  = timingFlagged && readablePage;
+
+  setPhase('timing', timingSuspicious ? 'flagged' : 'done', timingSuspicious ? '!' : '✓');
+  setProgress(100);
+
+  await delay(200);
+
+  // ── VERDICT ───────────────────────────────────────────────
+  let state, title, detail;
+
+  const definiteBlock  = detectedFilter !== null;
+  const probableBlock  = redirectSuspicious || timingSuspicious;
+  const timedOut       = probe.status === 'timeout';
+
+  if (definiteBlock) {
+    state  = 'blocked';
+    title  = '✗ Blocked by school filter';
+    detail = 'A known content filter was detected. The URL was intercepted and a block page was served instead.';
+    document.getElementById('filter-badge').style.display = 'inline-flex';
+    document.getElementById('filter-name').textContent    = detectedFilter;
+    btn.className   = 'check-btn blocked';
+    btn.textContent = '✗ Blocked';
+  } else if (probableBlock) {
+    state  = 'blocked';
+    title  = '✗ Likely blocked';
+    detail = 'The request was redirected or a fast-loading page was returned — typical of a content filter intercept. The specific filter could not be identified.';
+    btn.className   = 'check-btn blocked';
+    btn.textContent = '✗ Blocked';
+  } else if (timedOut) {
+    state  = 'unknown';
+    title  = '⚠ Timed out';
+    detail = 'The URL did not respond within 12 seconds. It may be blocked, the server may be down, or your connection is slow.';
+    btn.className   = 'check-btn unknown';
+    btn.textContent = '? Timeout';
+  } else {
+    state  = 'ok';
+    title  = '✓ Appears accessible';
+    detail = 'No filter redirect or block page signature was detected. The URL loaded cross-origin as expected — likely not blocked on this network.';
+    btn.className   = 'check-btn ok';
+    btn.textContent = '✓ OK';
+  }
+
+  const vb = document.getElementById('verdict-box');
+  vb.className = `verdict-box ${state} show`;
+  document.getElementById('verdict-title').textContent  = title;
+  document.getElementById('verdict-detail').textContent = detail;
+
+  setTimeout(() => {
+    btn.className   = 'check-btn';
+    btn.textContent = 'Check';
+    document.getElementById('probe-frame').src = 'about:blank';
+  }, 9000);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────
+function openModal(url) {
+  document.getElementById('modal-url').textContent = url;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('probe-frame').src = 'about:blank';
+}
+document.getElementById('modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modal')) closeModal();
+});
+</script>
+</body>
+</html>
